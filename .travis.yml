@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=true
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for SimonDanisch/FribidiBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: UxSN8b4En2dGqfxWK0ne5VCroNaHF37Whr8G1VECjh5ZIf4CHt8MjF+WA3j7I79g3USS7ENcUHmLp+N5DnUyPiVV21VnRXxqIcqWOv28+fGE/hlKkOkdheIyt7sDo4dn7hxacaUQz2nMsxMFwqiefdaq4h6hCeq8zAXBMVe4tbSSEitB1u1MabnkGrnmX2AOimdQzgow/sa7fFhMwa+Cndc4iTqWIpN4hC2jffdf8w2OuvkDopqqArkKo8yxZv4F/4ywgJ1KvPaeXcN2xp5rWYuNzjmRNGXDNGV3Q2Oqcjaii5OomZnmBp99s0BvApQPJUWaqnXis2QD6JmjQuPwtBBJa5WIWxcd5WwG/JremoKh+wC681XlUq4lrdN3WUkMRqnIeu+tnsDQ4E1e8VeiJTOTsA6SuAfylbyjbjz7S5hMQDH63GOCjBeyEqPorxsmZxEtiNG1EPoNagLwNQpAt77vgfREcBNMdvyDuLVu44lXhISjPPsY3bVXoW3tw831Ky9tRAD0QMyhxQllmWVgL1wzTa18ViFE4OWmkIBuXhmsYAl43SfoJGEtqav+cE9122n/7x7EGXBU5sqCgUN+CoJEzt171nkly/CKLY59fWhzRpjK2tvZPWJK6TxrodITbsVNtQR6QLYO6pvJxB2/7sjz2YBZhMWRcyZjjuhlH1c=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: SimonDanisch/FribidiBuilder
+        tags: true
